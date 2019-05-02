@@ -1,6 +1,6 @@
 # STM8L151G6-based LoRaWAN node
 
-  This is alternative firmware for E32-868T20D and E32-868T30D LoRa UART modules,
+ This is alternative firmware for E32-868T20D and E32-868T30D LoRa UART modules,
 that by default works in proprietary p2p mode. The alternative firmware allows to
 use them as node in LoRa WAN networks, like TheThingNetwork or others in both
 OTAA or ADR modes.
@@ -9,6 +9,7 @@ OTAA or ADR modes.
  |--- |--- |
  | E32-868T20D 100mW module (witout LNA and PA) | E32-868T30D 1W module including LNA and PA |
 
+![Modules in use](Pictures/modules.jpg "modules in use")
 
 # Firmware includes such features:
   * Supports LoRa MAC mode A with OTAA or ADR modes.
@@ -25,11 +26,14 @@ OTAA or ADR modes.
   * Supports BMP180 or BME280 sensors in I2C mode by using M0 - as SCL and M1 as SDA pins.
   * Additional I2C sensor power supply can be completely disabled during sleep mode
     (for power saving) when it's supply is connected to the LoRa modem TCXO power switch.
-    This easier for E32-868T30D due connecting to that switch is not require opening the schield).
+    This easier for E32-868T30D due connecting to that switch is not require opening the
+    schield), as shown on photo below.
 
+ | ![Module connection](Pictures/module_connection.jpg "module connection") |
+ |--- |
+ |Connection of BME280 to internal power switch to decrease power consumption|
 
-# Builded firmware info
-Size:
+# Builded firmware size info
 ```
   28 527 bytes of readonly  code memory
    3 526 bytes of readonly  data memory
@@ -65,5 +69,7 @@ UART is: ENABLED
 =============CONFIGURATION FINISHED==============
 ```
 
+
+
 # Licensing
-    Software is licensed under Eclipse Public License - v 2.0. Some AES code - is under LGPL.
+ Software is licensed under Eclipse Public License - v 2.0. Some AES code - is under LGPL.
