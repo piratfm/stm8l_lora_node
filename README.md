@@ -1,6 +1,6 @@
 # STM8L151G6-based LoRaWAN node
 
-    This is alternative firmware for E32-868T20D and E32-868T30D LoRa UART modules,
+  This is alternative firmware for E32-868T20D and E32-868T30D LoRa UART modules,
 that by default works in proprietary p2p mode. The alternative firmware allows to
 use them as node in LoRa WAN networks, like TheThingNetwork or others in both
 OTAA or ADR modes.
@@ -10,7 +10,7 @@ OTAA or ADR modes.
  | E32-868T20D 100mW module (witout LNA and PA) | E32-868T30D 1W module including LNA and PA |
 
 
-# This firmware includes such features:
+# Firmware includes such features:
   * Supports LoRa MAC mode A with OTAA or ADR modes.
   * UART pins used for configuring device or getting status info.
   * Configure device by pulling down M0 pin by 10 seconds during start (or initial run).
