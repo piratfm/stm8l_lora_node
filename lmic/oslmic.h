@@ -229,71 +229,8 @@ u2_t os_crc16 (xref2u1_t d, uint len);
 
 #endif // !HAS_os_calls
 
-// ======================================================================
-// Table support
-// These macros for defining a table of constants and retrieving values
-// from it makes it easier for other platforms (like AVR) to optimize
-// table accesses.
-// Use CONST_TABLE() whenever declaring or defining a table, and
-// TABLE_GET_xx whenever accessing its values. The actual name of the
-// declared variable will be modified to prevent accidental direct
-// access. The accessor macros forward to an inline function to allow
-// proper type checking of the array element type.
-
-// Helper to add a prefix to the table name
-#define RESOLVE_TABLE(table) constant_table_ ## table
-
-// Accessors for table elements
-#define TABLE_GET_U1(table, index) table_get_u1(RESOLVE_TABLE(table), index)
-#define TABLE_GET_S1(table, index) table_get_s1(RESOLVE_TABLE(table), index)
-#define TABLE_GET_U2(table, index) table_get_u2(RESOLVE_TABLE(table), index)
-#define TABLE_GET_S2(table, index) table_get_s2(RESOLVE_TABLE(table), index)
-#define TABLE_GET_U4(table, index) table_get_u4(RESOLVE_TABLE(table), index)
-#define TABLE_GET_S4(table, index) table_get_s4(RESOLVE_TABLE(table), index)
-#define TABLE_GET_OSTIME(table, index) table_get_ostime(RESOLVE_TABLE(table), index)
-#define TABLE_GET_U1_TWODIM(table, index1, index2) table_get_u1(RESOLVE_TABLE(table)[index1], index2)
-
-#if defined(__AVR__)
-    #include <avr/pgmspace.h>
-    // Macro to define the getter functions. This loads data from
-    // progmem using pgm_read_xx, or accesses memory directly when the
-    // index is a constant so gcc can optimize it away;
-    #define TABLE_GETTER(postfix, type, pgm_type) \
-        inline type table_get ## postfix(const type *table, size_t index) { \
-            if (__builtin_constant_p(table[index])) \
-                return table[index]; \
-            return pgm_read_ ## pgm_type(&table[index]); \
-        }
-
-    TABLE_GETTER(_u1, u1_t, byte);
-    TABLE_GETTER(_s1, s1_t, byte);
-    TABLE_GETTER(_u2, u2_t, word);
-    TABLE_GETTER(_s2, s2_t, word);
-    TABLE_GETTER(_u4, u4_t, dword);
-    TABLE_GETTER(_s4, s4_t, dword);
-
-    // This assumes ostime_t is 4 bytes, so error out if it is not
-    typedef int check_sizeof_ostime_t[(sizeof(ostime_t) == 4) ? 0 : -1];
-    TABLE_GETTER(_ostime, ostime_t, dword);
-
-    // For AVR, store constants in PROGMEM, saving on RAM usage
-    #define CONST_TABLE(type, name) const type PROGMEM RESOLVE_TABLE(name)
-
-    #define lmic_printf(fmt, ...) printf_P(PSTR(fmt)"\r", ## __VA_ARGS__)
-#else
-    inline u1_t table_get_u1(const u1_t *table, size_t index) { return table[index]; }
-    inline s1_t table_get_s1(const s1_t *table, size_t index) { return table[index]; }
-    inline u2_t table_get_u2(const u2_t *table, size_t index) { return table[index]; }
-    inline s2_t table_get_s2(const s2_t *table, size_t index) { return table[index]; }
-    inline u4_t table_get_u4(const u4_t *table, size_t index) { return table[index]; }
-    inline s4_t table_get_s4(const s4_t *table, size_t index) { return table[index]; }
-    inline ostime_t table_get_ostime(const ostime_t *table, size_t index) { return table[index]; }
-
-    // Declare a table
-    #define CONST_TABLE(type, name) const type RESOLVE_TABLE(name)
-    //#define lmic_printf printf
-    #define lmic_printf(fmt, ...) printf(fmt"\r", ## __VA_ARGS__)
-#endif
+//#define lmic_printf printf
+#define lmic_printf(fmt, ...) printf(fmt"\r", ## __VA_ARGS__)
 
 // ======================================================================
 // AES support

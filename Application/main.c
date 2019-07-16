@@ -36,10 +36,12 @@ int __eeprom_wait_for_last_operation(void) {
 
 void __eeprom_program_byte(unsigned char __near * dst, unsigned char v) {
   FLASH_ProgramByte((uint32_t)dst, (uint8_t)v);
+  __eeprom_wait_for_last_operation();
 }
 
 void __eeprom_program_long(unsigned char __near * dst, unsigned long v) {
   FLASH_ProgramWord((uint32_t)dst, (uint32_t)v);
+  __eeprom_wait_for_last_operation();
 }
 
 
@@ -434,6 +436,18 @@ void configModeFunc()
   printf("=============================================\r\n");
   FLASH_Unlock(FLASH_MemType_Data);
 
+  printf("DevEUI[press enter for default: ");
+  getDevEui(buff);
+  for(cnt=0;cnt<8;cnt++)
+    printf("%02X ", buff[cnt]);
+  printf("]:");
+  cnt=hexPtr(buff, 8);
+  printf("\r\n[%u]: ", cnt);
+  for(cnt=0;cnt<8;cnt++) {
+    printf("%02X ", buff[cnt]);
+    DEVEUI[cnt] = buff[cnt];
+  }
+  printf("\r\n");
   
   printf("Disable OTAA activation method (y/N):");
   cnt = dev_flags & 0xFB;
@@ -445,7 +459,6 @@ void configModeFunc()
   } while (ch != '\r' && ch != '\n');
   printf("\r\nOTAA is: %s\r\n", (cnt & 0x04) ? "DISABLED" : "ENABLED");
   dev_flags = cnt;
-  
   
   if(!(cnt & 0x04)) {
   //otaa:
@@ -463,19 +476,6 @@ void configModeFunc()
     for(cnt=0;cnt<16;cnt++) {
       printf("%02X ", buff[cnt]);
       APPKEY[cnt] = buff[cnt];
-    }
-    printf("\r\n");
-
-    printf("DevEUI[press enter for default: ");
-    getDevEui(buff);
-    for(cnt=0;cnt<8;cnt++)
-      printf("%02X ", buff[cnt]);
-    printf("]:");
-    cnt=hexPtr(buff, 8);
-    printf("\r\n[%u]: ", cnt);
-    for(cnt=0;cnt<8;cnt++) {
-      printf("%02X ", buff[cnt]);
-      DEVEUI[cnt] = buff[cnt];
     }
     printf("\r\n");
   } else {
@@ -522,7 +522,6 @@ void configModeFunc()
   
   if(stat_int==0)
     stat_int=1;
-  printf("\r\nStatistics collection interval: %u minutes\r\n", stat_int);
   delay_minutes=stat_int;
   printf("\r\nStatistics collection interval: %lu minutes\r\n", delay_minutes);
   
@@ -625,13 +624,14 @@ void main(void)
   // Reset the MAC state. Session and pending data transfers will be discarded.
   printf("Reset the MAC state....\r\n");
   LMIC_reset();
-  LMIC_setLinkCheckMode(1);
+  LMIC_setLinkCheckMode((dev_flags & 0x02) ? 0 : 1);
+
   //LMIC_init();
   //LMIC_setClockError(MAX_CLOCK_ERROR * 20 / 100);
 
   //LMIC_startJoining();
   
-  LMIC_setClockError(MAX_CLOCK_ERROR * 30 / 100);
+  LMIC_setClockError(MAX_CLOCK_ERROR-1);
 
   // Set up the channels used by the Things Network, which corresponds
   // to the defaults of most gateways. Without this, only three base
@@ -668,6 +668,12 @@ void main(void)
     rejoinFailed = FALSE;
   }
 
+  if(dev_flags & 0x02) {
+    //LMIC_setLinkCheckMode(0);
+    LMIC_setDrTxpow(DR_SF12, 20);
+    LMIC.dn2Dr = SF12;
+  }
+  
   // Start job (sending automatically starts OTAA too)
   do_send(&sendjob);
 
@@ -722,6 +728,8 @@ void main(void)
       halt();
 
       RTC_WakeUpCmd(DISABLE);
+
+      hal_pin_rxtx(1); //pre-enable TX for faster operationing
       
       /* Switch to HSI as system clock source */
       /* system clock prescaler: 1*/
@@ -745,7 +753,6 @@ void main(void)
       SPI_Cmd(SPI1, ENABLE);
       
       printf("======= WORK  %s\r\n", extTriggered ? "extTriggered" : "RTC");
-      hal_pin_rxtx(0);
       
       do_send(&sendjob);
       txComplete=FALSE;

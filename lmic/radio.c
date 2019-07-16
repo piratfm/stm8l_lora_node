@@ -578,7 +578,7 @@ static void starttx () {
 
 enum { RXMODE_SINGLE, RXMODE_SCAN, RXMODE_RSSI };
 
-static CONST_TABLE(u1_t, rxlorairqmask)[] = {
+static const u1_t rxlorairqmask[] = {
     [RXMODE_SINGLE] = IRQ_LORA_RXDONE_MASK|IRQ_LORA_RXTOUT_MASK,
     [RXMODE_SCAN]   = IRQ_LORA_RXDONE_MASK,
     [RXMODE_RSSI]   = 0x00,
@@ -619,7 +619,7 @@ static void rxlora (u1_t rxmode) {
     // clear all radio IRQ flags
     writeReg(LORARegIrqFlags, 0xFF);
     // enable required radio IRQs
-    writeReg(LORARegIrqFlagsMask, ~TABLE_GET_U1(rxlorairqmask, rxmode));
+    writeReg(LORARegIrqFlagsMask, ~rxlorairqmask[rxmode]);
 
     // enable antenna switch for RX
     hal_pin_rxtx(0);
@@ -801,7 +801,7 @@ s2_t radio_rssi () {
     return r;
 }
 
-static CONST_TABLE(u2_t, LORA_RXDONE_FIXUP)[] = {
+static const u2_t LORA_RXDONE_FIXUP[] = {
     [FSK]  =     us2osticks(0), // (   0 ticks)
     [SF7]  =     us2osticks(0), // (   0 ticks)
     [SF8]  =  us2osticks(1648), // (  54 ticks)
@@ -848,7 +848,7 @@ void radio_irq_handler (u1_t dio) {
         } else if( flags & IRQ_LORA_RXDONE_MASK ) {
             // save exact rx time
             if(getBw(LMIC.rps) == BW125) {
-                now -= TABLE_GET_U2(LORA_RXDONE_FIXUP, getSf(LMIC.rps));
+                now -= LORA_RXDONE_FIXUP[getSf(LMIC.rps)];
             }
             LMIC.rxtime = now;
             // read the PDU and inform the MAC that we received something
