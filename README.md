@@ -3,7 +3,7 @@
  This is alternative firmware for E32-868T20D and E32-868T30D LoRa UART modules,
 that by default works in proprietary p2p mode. The alternative firmware allows to
 use them as node in LoRa WAN networks, like TheThingNetwork or others in both
-OTAA or ADR modes.
+OTAA or ADR modes. Connection diagram can be seeo on [pinouts](Pictures/pinouts.png).
 
  | ![E32-868T20D](Pictures/e32-868t20d.png "e32-868t20d 100mW module") | ![E32-868T30D](Pictures/e32-868t30d.png "e32-868t30d 1W module") |
  |--- |--- |
@@ -73,3 +73,8 @@ UART is: ENABLED
 
 # Licensing
  Software is licensed under Eclipse Public License - v 2.0. Some AES code - is under LGPL.
+ 
+# Warning
+ **By flashing this firmware You are wiping original firmware of the module. There is no way to revert original firmware. You must really understand what you are doing. No responsible for bricking your devices!**
+ 
+ 
